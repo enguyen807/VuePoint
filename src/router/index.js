@@ -10,13 +10,13 @@ Vue.use(VueRouter)
   const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/signin',
     name: 'SignIn',
     component: SignIn
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: Home
   },
   {
     path: '/signup',
@@ -34,6 +34,7 @@ Vue.use(VueRouter)
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 

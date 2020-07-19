@@ -1,52 +1,53 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          :src="require('./assets/logo.png')"
           transition="scale-transition"
           width="40"
         />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <v-toolbar-title class="shrink mt-1 hidden-sm-and-down">VuePoint</v-toolbar-title>
       </div>
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <v-content>
-      <router-view/>
-    </v-content>
-  </v-app>  
+    <v-main>
+      <ErrorAlert :errors="errors" :errorsArray="errorsArray"/>
+      <router-view>
+      </router-view>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-
+import ErrorAlert from './components/Alert/ErrorAlertComponent'
+import {EventBus} from './components/Alert/BaseAlertComponent'
 
 export default {
   name: 'App',
-
-  components: {
-
-  },
-
   data: () => ({
-    //
+    errors: false,
+    errorsArray: []
   }),
-};
+  components: {
+    ErrorAlert
+  },
+  created() {
+    EventBus.$on('errors_event', obj => {
+      this.errors = true
+      this.errorsArray = obj
+    })
+  },
+  methods: {
+    eventError() {
+      console.log('test')
+    }
+  }
+}
 </script>
 
 <style lang="scss">
