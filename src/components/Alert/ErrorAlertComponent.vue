@@ -1,25 +1,38 @@
 <template>
   <v-alert
-    v-show="errors"
+    v-if="alert.message"
     dismissible
     close-icon="mdi-delete"
     border="left"
     elevation="2"
     colored-border
-    type="error"
+    :type="`${alert.type}`"
     transition="scale-transition"
   >
-  {{ errorsArray.message }}
+    {{ alert.message }} 
   </v-alert>
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
-  props: {
-    errors: Boolean,
-    errorsArray: Array
-  },
   data: () => ({}),
+  computed: {
+    ...mapState({
+      alert: state => state.alert
+    })
+  },
+  methods: {
+    ...mapActions({
+      clearAlert: 'alert/clear'
+    })
+  },
+  watch: {
+    $route () {
+      this.clearAlert()
+    }
+  }
 }
 </script>
 

@@ -10,42 +10,43 @@
           transition="scale-transition"
           width="40"
         />
-        <v-toolbar-title class="shrink mt-1 hidden-sm-and-down">VuePoint</v-toolbar-title>
+        <v-toolbar-title class="shrink mt-1 hidden-sm-and-down"
+          >{{ title  }}</v-toolbar-title
+        >
       </div>
       <v-spacer></v-spacer>
     </v-app-bar>
 
     <v-main>
-      <ErrorAlert :errors="errors" :errorsArray="errorsArray"/>
-      <router-view>
-      </router-view>
+      <ErrorAlert/>
+      <router-view> </router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
 import ErrorAlert from './components/Alert/ErrorAlertComponent'
-import {EventBus} from './components/Alert/BaseAlertComponent'
+// import {EventBus} from './components/Alert/BaseAlertComponent'
 
 export default {
   name: 'App',
   data: () => ({
-    errors: false,
-    errorsArray: []
+    title: process.env.VUE_APP_TITLE
   }),
   components: {
     ErrorAlert
   },
-  created() {
-    EventBus.$on('errors_event', obj => {
-      this.errors = true
-      this.errorsArray = obj
-    })
+  created () {
+    // EventBus.$on('errors_event', obj => {
+    //   this.errors = true
+    //   this.errorsArray = obj
+    // })
   },
   methods: {
-    eventError() {
-      console.log('test')
-    }
+
+  },
+  computed: {
+
   }
 }
 </script>

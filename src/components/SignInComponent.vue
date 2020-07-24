@@ -13,7 +13,7 @@
                 <v-card-text>
                   <div class="text-left">
                     New user?
-                    <router-link to="/signup">Create an account</router-link>
+                    <router-link to="/register">Create an account</router-link>
                   </div>
                   <ValidationProvider
                     v-slot="{ errors }"
@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { mapState, mapActions } from 'vuex'
 import { required, email, min } from 'vee-validate/dist/rules'
 import {
   extend,
@@ -65,8 +65,6 @@ import {
   ValidationProvider,
   setInteractionMode
 } from 'vee-validate'
-
-import { EventBus } from './Alert/BaseAlertComponent'
 
 setInteractionMode('eager')
 
@@ -95,40 +93,21 @@ export default {
     email: '',
     password: ''
   }),
+  created () {
+    this.logout()
+  },
   methods: {
+    ...mapActions('account', ['login', 'logout']),
     async onSubmit () {
-      const formDataQuery = {
-        query: `
-          {
-            login(email: "${this.email}", password: "${this.password}") {
-              token
-              userId
-            }
-          }
-        `
-      }
+      const { email, password } = this
+      // var username = this.username,
+      //     password = this.password
 
-      try {
-        const resp = await axios.post(
-          `http://localhost:3000/graphql`,
-          formDataQuery,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-        if (resp.status === 200) {
-          console.log('Login Success')
-          this.$router.push("/home")
-        }
-      } catch (e) {
-        console.log(e.response.data.errors)
-        if (e.response.data.errors) {
-          EventBus.$emit('errors_event', e.response.data.errors[0])
-        }
-      }
+      this.login({ email, password })
     }
+  },
+  computed: {
+    ...mapState('account', ['status'])
   }
 }
 </script>

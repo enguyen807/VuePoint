@@ -13,7 +13,7 @@
                 <v-card-text>
                   <div class="text-left pb-6">
                     Already have an account?
-                    <router-link to="/">Sign in</router-link>
+                    <router-link to="/login">Sign in</router-link>
                   </div>
 
                   <ValidationProvider
@@ -94,7 +94,8 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { mapState, mapActions } from 'vuex'
+
 import { required, email, min } from 'vee-validate/dist/rules'
 import {
   extend,
@@ -103,7 +104,7 @@ import {
   setInteractionMode
 } from 'vee-validate'
 
-import { EventBus } from './Alert/BaseAlertComponent'
+// import { EventBus } from './Alert/BaseAlertComponent'
 
 setInteractionMode('eager')
 
@@ -137,44 +138,30 @@ export default {
     items: ['United States', 'Estonia', 'Canada']
   }),
   methods: {
+    ...mapActions('account', ['register']),
     async onSubmit () {
-      const formDataQuery = {
-        query: `
-          mutation {
-            createUser(userInput: {email: "${this.email}", name:"${this.fullName}", password:"${this.password}", country: "${this.country}"}) {
-              _id
-              email
-            }
-          }
-        `
-      }
+      const { email, fullName, password, country} = this
 
-      try {
-        const resp = await axios.post(
-          `http://localhost:3000/graphql`,
-          formDataQuery,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-        if (resp.status === 200) {
-          console.log('Account Creation Success')
-          this.$router.push('/')
-        }
-      } catch (e) {
-        console.log(e.response.data.errors)
-        if (e.response.data.errors) {
-          EventBus.$emit('errors_event', e.response.data.errors[0])
-        }
-      }
+      // const formDataQuery = {
+      //   query: `
+      //     mutation {
+      //       createUser(userInput: {email: "${this.email}", name:"${this.fullName}", password:"${this.password}", country: "${this.country}"}) {
+      //         _id
+      //         email
+      //       }
+      //     }
+      //   `
+      // }
+
+      
+      this.register({email, password, fullName, country})
     }
   },
   computed: {
     fullName () {
       return this.firstName + ' ' + this.lastName
-    }
+    },
+    ...mapState('account', ['status'])
   }
 }
 </script>
