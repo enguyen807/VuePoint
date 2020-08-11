@@ -24,6 +24,8 @@
                     <v-text-field
                       v-model="email"
                       :error-messages="errors"
+                      :aria-describedby="errors"
+                      hint="example@domain.com"
                       label="Email"
                       name="email"
                       required
@@ -39,6 +41,7 @@
                         <v-text-field
                           v-model="firstName"
                           :error-messages="errors"
+                          :aria-describedby="errors"
                           label="First name"
                           required
                         ></v-text-field>
@@ -53,12 +56,14 @@
                         <v-text-field
                           v-model="lastName"
                           :error-messages="errors"
+                          :aria-describedby="errors"
                           label="Last name"
                           required
                         ></v-text-field>
                       </ValidationProvider>
                     </v-col>
                   </v-row>
+                  <!-- Add Show Password button -->
                   <ValidationProvider
                     v-slot="{ errors }"
                     name="Password"
@@ -67,18 +72,30 @@
                     <v-text-field
                       v-model="password"
                       :error-messages="errors"
+                      :aria-describedby="errors"
                       label="Password"
-                      name="Password"
-                      type="password"
+                      name="new-password"
+                      hint="At least 6 characters"
+                      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                      :type="showPassword ? 'text' : 'password'"
+                      @click:append="showPassword = !showPassword"
                     ></v-text-field>
                   </ValidationProvider>
-                  <v-select
-                    v-model="country"
-                    :items="items"
-                    :rules="[v => !!v || 'Country/Region field is required']"
-                    label="Country/Region"
-                    required
-                  ></v-select>
+                  <ValidationProvider
+                    v-slot="{ errors }"
+                    name="Country"
+                    rules="required"
+                  >
+                    <v-select
+                      v-model="country"
+                      :error-messages="errors"
+                      :aria-describedby="errors"
+                      :items="items"
+                      :rules="[v => !!v || 'Country/Region field is required']"
+                      label="Country/Region"
+                      required
+                    ></v-select>
+                  </ValidationProvider>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -132,6 +149,7 @@ export default {
   data: () => ({
     email: '',
     password: '',
+    showPassword: '',
     firstName: '',
     lastName: '',
     country: 'Estonia',
@@ -140,7 +158,7 @@ export default {
   methods: {
     ...mapActions('account', ['register']),
     async onSubmit () {
-      const { email, fullName, password, country} = this
+      const { email, fullName, password, country } = this
 
       // const formDataQuery = {
       //   query: `
@@ -153,8 +171,7 @@ export default {
       //   `
       // }
 
-      
-      this.register({email, password, fullName, country})
+      this.register({ email, password, fullName, country })
     }
   },
   computed: {

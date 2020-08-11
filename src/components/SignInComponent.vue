@@ -22,7 +22,9 @@
                   >
                     <v-text-field
                       v-model="email"
+                      aria-autocomplete="email"
                       :error-messages="errors"
+                      :aria-describedby="errors"
                       label="Email"
                       name="Email"
                       required
@@ -36,14 +38,17 @@
                     <v-text-field
                       v-model="password"
                       :error-messages="errors"
+                      :aria-describedby="errors"
                       label="Password"
-                      name="password"
-                      type="password"
-                      required
+                      name="current-password"
+                      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                      :type="showPassword ? 'text' : 'password'"
+                      @click:append="showPassword = !showPassword"
                     ></v-text-field>
                   </ValidationProvider>
                 </v-card-text>
                 <v-card-actions>
+                  <v-btn text color="primary" to="/">Forgot password?</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn color="primary" type="submit">Login</v-btn>
                 </v-card-actions>
@@ -91,7 +96,8 @@ export default {
   },
   data: () => ({
     email: '',
-    password: ''
+    password: '',
+    showPassword: ''
   }),
   created () {
     this.logout()

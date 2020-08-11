@@ -24,6 +24,7 @@ function login({ username, password }) {
         login(email: "${username}", password: "${password}"){
           userId
           token
+          isVerified
         }
     }`,
   };

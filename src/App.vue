@@ -1,4 +1,10 @@
 <template>
+<!-- 
+ TODO
+ Add Email Confirmation 
+ Add Forgot Password and Forgot Email components
+ Add Email and Fullname to global state
+ -->
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
@@ -10,23 +16,44 @@
           transition="scale-transition"
           width="40"
         />
-        <v-toolbar-title class="shrink mt-1 hidden-sm-and-down"
-          >{{ title  }}</v-toolbar-title
-        >
+        <v-toolbar-title class="shrink mt-1 hidden-sm-and-down">{{
+          title
+        }}</v-toolbar-title>
       </div>
       <v-spacer></v-spacer>
+      <v-menu offset-y v-if="account.user">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn text v-bind="attrs" v-on="on">
+            <v-icon>mdi-account</v-icon>
+            {{ account.user.email }}
+            <v-icon>mdi-menu-down</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list nav>
+          <v-list-item @click="test">
+            <v-list-item-title>My Profile</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="test">
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="this.logout">
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
 
     <v-main>
-      <ErrorAlert/>
+      <ErrorAlert />
       <router-view> </router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 import ErrorAlert from './components/Alert/ErrorAlertComponent'
-// import {EventBus} from './components/Alert/BaseAlertComponent'
 
 export default {
   name: 'App',
@@ -37,16 +64,14 @@ export default {
     ErrorAlert
   },
   created () {
-    // EventBus.$on('errors_event', obj => {
-    //   this.errors = true
-    //   this.errorsArray = obj
-    // })
+    
   },
   methods: {
-
+    ...mapActions('account', ['logout']),
+    test () {}
   },
   computed: {
-
+    ...mapState(['account'])
   }
 }
 </script>
