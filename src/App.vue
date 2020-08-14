@@ -46,7 +46,7 @@
 
     <v-main>
       <ErrorAlert />
-      <router-view> </router-view>
+      <router-view/>
     </v-main>
   </v-app>
 </template>
@@ -63,11 +63,11 @@ export default {
   components: {
     ErrorAlert
   },
-  created () {
-    
+  mounted () {
+    this.setLogoutTimer()
   },
   methods: {
-    ...mapActions('account', ['logout']),
+    ...mapActions('account', ['logout', 'setLogoutTimer']),
     test () {}
   },
   computed: {

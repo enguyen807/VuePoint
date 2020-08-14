@@ -48,7 +48,7 @@
                   </ValidationProvider>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn text color="primary" to="/">Forgot password?</v-btn>
+                  <v-btn text color="primary" to="/verify-email">Forgot password?</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn color="primary" type="submit">Login</v-btn>
                 </v-card-actions>
@@ -109,7 +109,7 @@ export default {
       // var username = this.username,
       //     password = this.password
 
-      this.login({ email, password })
+      await this.login({ email, password })
     }
   },
   computed: {

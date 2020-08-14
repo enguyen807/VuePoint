@@ -171,7 +171,7 @@ export default {
       //   `
       // }
 
-      this.register({ email, password, fullName, country })
+      await this.register({ email, password, fullName, country })
     }
   },
   computed: {

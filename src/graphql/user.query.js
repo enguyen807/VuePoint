@@ -1,6 +1,7 @@
 export const userQuery = {
   login,
   register,
+  verify,
 };
 
 function register({ email, password, fullName, country }) {
@@ -29,5 +30,18 @@ function login({ username, password }) {
     }`,
   };
 
+  return formDataQuery;
+}
+
+function verify({ email }) {
+  const formDataQuery = {
+    query: `
+      mutation {
+        verifyEmail(email: "${email}") {
+          email
+        }
+      }
+    `,
+  };
   return formDataQuery;
 }

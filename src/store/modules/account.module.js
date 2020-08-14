@@ -10,9 +10,18 @@ import jwt_decode from "jwt-decode";
 // https://segment.com/docs/segment-app/verify-email-address/
 
 const user = JSON.parse(localStorage.getItem("user"));
+let expiresIn = "";
+
+if (user) {
+  const user_token = user.token;
+
+  const exp = jwt_decode(user_token).exp;
+  const iat = jwt_decode(user_token).iat;
+  expiresIn = (exp - iat) * 1000;
+}
 
 const state = user
-  ? { status: { loggedIn: true }, user }
+  ? { status: { loggedIn: true, autoLogoutIn: expiresIn }, user }
   : { status: {}, user: null };
 
 const mutations = {
@@ -29,13 +38,22 @@ const mutations = {
     state.status = { loggingIn: true };
     state.user = user;
   },
-  loginSuccess(state, user) {
-    state.status = { loggedIn: true };
-    state.user = user;
+  loginSuccess(state, payload) {
+    state.status = { loggedIn: true, autoLogoutIn: payload.expiresIn };
+    state.user = payload.user;
   },
   loginFailure(state) {
     state.status = {};
     state.user = null;
+  },
+  emailVerifyRequest(state) {
+    state.status = { verifying: true }
+  },
+  emailVerifySuccess(state) {
+    state.status = { emailVerifySuccess: true}
+  },
+  emailVerifyFailure(state) {
+    state.status = { emailVerifyFailure: true }
   },
   logout(state) {
     state.status = {};
@@ -44,12 +62,13 @@ const mutations = {
 };
 
 const actions = {
-  setLogoutTimer({ commit }, expirationTime) {
+  setLogoutTimer({ commit }) {
     setTimeout(() => {
       userService.logout();
+
       commit("logout");
-      router.push("/login");
-    }, expirationTime);
+      if (router.app._route.path !== "/login") router.push("/login");
+    }, state.status.autoLogoutIn);
   },
   async register({ dispatch, commit }, { email, password, fullName, country }) {
     commit("registerRequest", user);
@@ -61,18 +80,18 @@ const actions = {
         fullName,
         country
       );
-      console.log(res)
+      console.log(res);
       commit("registerSuccess", res.data.data.createUser.email);
       setTimeout(() => {
         // display success message after route change completes
         dispatch(
           "alert/success",
-          "Registration successful. A verification email has been sent to your email.",
+          "Registration successful. A verification email has been sent to your email!",
           { root: true }
         );
       });
 
-      router.push('/verify');
+      return router.push("/verify-email");
     } catch (error) {
       const errorMsg = error.response.data.errors[0].message;
       commit("registerFailure", errorMsg);
@@ -84,25 +103,68 @@ const actions = {
 
     try {
       const res = await userService.login(email, password);
-      commit("loginSuccess", { email });
-
+      console.log(res)
+      const user = {
+        token: res.data.data.login.token,
+        userId: res.data.data.login.userId,
+        email: email,
+        isVerified: res.data.data.login.isVerified,
+      };
       const exp = jwt_decode(res.data.data.login.token).exp;
       const iat = jwt_decode(res.data.data.login.token).iat;
-
       const expiresIn = (exp - iat) * 1000;
 
+      // console.log(res);
+      // console.log(`exp: ${exp}`);
+      // console.log(`iat: ${iat}`);
+      // console.log(`expiresIn: ${expiresIn}`);
+
+      if (res.data.data.login.isVerified === false) {
+        commit("loginFailure", 'Please verify your email address');
+        setTimeout(() => {
+          // display success message after route change completes
+          dispatch("alert/error", "Login failed. Please verify your email address", { root: true });
+        });
+
+        return router.push("/verify-email");
+      }
+
+      commit("loginSuccess", { user, expiresIn });
+
       setTimeout(() => {
-        dispatch("setLogoutTimer", expiresIn);
         // display success message after route change completes
         dispatch("alert/success", "Login successful", { root: true });
       });
 
-      router.push("/");
+      return router.push("/");
     } catch (error) {
       console.log(error);
       const errorMsg = error.response.data.errors[0].message;
       console.log(errorMsg);
       commit("loginFailure", errorMsg);
+      dispatch("alert/error", errorMsg, { root: true });
+    }
+  },
+  async verify({dispatch, commit}, {email}) {
+    commit("emailVerifyRequest", email);
+
+    try {
+      const res = await userService.verify(email);
+      console.log(res);
+      commit("emailVerifySuccess", email);
+      setTimeout(() => {
+        // display success message after route change completes
+        dispatch(
+          "alert/success",
+          "Email Verification successful. A verification email has been sent to your email!",
+          { root: true }
+        );
+      });
+
+      return router.push("/login");
+    } catch (error) {
+      const errorMsg = error.response.data.errors[0].message;
+      commit("emailVerifyFailure", errorMsg);
       dispatch("alert/error", errorMsg, { root: true });
     }
   },
